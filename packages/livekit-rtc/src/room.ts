@@ -16,6 +16,7 @@ import type {
   ConnectResponse,
   ConnectionQuality,
   DataPacketKind,
+  DisconnectCallback,
   DisconnectResponse,
   IceServer,
   RoomInfo,
@@ -148,13 +149,17 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
       return;
     }
 
-    FfiClient.instance.request<DisconnectResponse>({
+    const res = FfiClient.instance.request<DisconnectResponse>({
       message: {
         case: 'disconnect',
         value: {
           roomHandle: this.ffiHandle.handle,
         },
       },
+    });
+
+    await FfiClient.instance.waitFor<DisconnectCallback>((ev: FfiEvent) => {
+      return ev.message.case == 'disconnect' && ev.message.value.asyncId == res.asyncId;
     });
 
     FfiClient.instance.removeAllListeners();
