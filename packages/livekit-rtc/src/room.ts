@@ -159,6 +159,7 @@ export class Room extends (EventEmitter as new () => TypedEmitter<RoomCallbacks>
 
     FfiClient.instance.removeAllListeners();
     this.removeAllListeners();
+    this.connectionState = ConnectionState.CONN_DISCONNECTED;
   }
 
   private onFfiEvent = (ffiEvent: FfiEvent) => {
